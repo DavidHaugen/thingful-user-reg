@@ -4,7 +4,7 @@ const knex = require('knex');
 const app = require('../src/app');
 const helpers = require('./test-helpers');
 
-describe.only('Things Endpoints', function() {
+describe('Things Endpoints', function() {
   let db;
 
   const { testUsers, testThings, testReviews } = helpers.makeThingsFixtures();
@@ -28,7 +28,7 @@ describe.only('Things Endpoints', function() {
 
   afterEach('cleanup', () => helpers.cleanTables(db));
 
-  describe.only('Protected endpoints', () => {
+  describe('Protected endpoints', () => {
     beforeEach('insert things', () =>
       helpers.seedThingsTables(db, testUsers, testThings, testReviews)
     );
@@ -111,7 +111,7 @@ describe.only('Things Endpoints', function() {
         const thingId = 123456;
         return supertest(app)
           .get(`/api/things/${thingId}`)
-          .set('Authorization', makeAuthHeader(testUsers[0]))
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0], process.env.JWT_SECRET))
           .expect(404, { error: 'Thing doesn\'t exist' });
       });
     });
@@ -131,7 +131,7 @@ describe.only('Things Endpoints', function() {
 
         return supertest(app)
           .get(`/api/things/${thingId}`)
-          .set('Authorization', makeAuthHeader(testUsers[0]))
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0], process.env.JWT_SECRET))
           .expect(200, expectedThing);
       });
     });
@@ -149,7 +149,7 @@ describe.only('Things Endpoints', function() {
       it('removes XSS attack content', () => {
         return supertest(app)
           .get(`/api/things/${maliciousThing.id}`)
-          .set('Authorization', makeAuthHeader(testUser))
+          .set('Authorization', helpers.makeAuthHeader(testUser, process.env.JWT_SECRET))
           .expect(200)
           .expect(res => {
             expect(res.body.title).to.eql(expectedThing.title);
@@ -184,7 +184,7 @@ describe.only('Things Endpoints', function() {
 
         return supertest(app)
           .get(`/api/things/${thingId}/reviews`)
-          .set('Authorization', makeAuthHeader(testUsers[0]))
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0], process.env.JWT_SECRET))
           .expect(200, expectedReviews);
       });
     });

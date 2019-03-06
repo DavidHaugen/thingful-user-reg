@@ -4,7 +4,7 @@ const knex = require('knex');
 const app = require('../src/app');
 const helpers = require('./test-helpers');
 
-describe.only('Reviews Endpoints', function() {
+describe('Reviews Endpoints', function() {
   let db;
 
   const {
@@ -85,7 +85,7 @@ describe.only('Reviews Endpoints', function() {
         );
     });
 
-    const requiredFields = ['text', 'rating', 'user_id', 'thing_id'];
+    const requiredFields = ['text', 'rating', 'thing_id'];
 
     requiredFields.forEach(field => {
       const testThing = testThings[0];
@@ -93,8 +93,7 @@ describe.only('Reviews Endpoints', function() {
       const newReview = {
         text: 'Test new review',
         rating: 3,
-        user_id: testUser.id,
-        thing_id: testThing.id,
+        thing_id: testThing.id
       };
 
       it(`responds with 400 and an error message when the '${field}' is missing`, () => {
