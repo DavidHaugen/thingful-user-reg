@@ -4,7 +4,7 @@ const knex = require('knex');
 const app = require('../src/app');
 const helpers = require('./test-helpers');
 
-describe('Things Endpoints', function() {
+describe.only('Things Endpoints', function() {
   let db;
 
   const { testUsers, testThings, testReviews } = helpers.makeThingsFixtures();
@@ -28,7 +28,7 @@ describe('Things Endpoints', function() {
 
   afterEach('cleanup', () => helpers.cleanTables(db));
 
-  describe('Protected endpoints', () => {
+  describe.only('Protected endpoints', () => {
     beforeEach('insert things', () =>
       helpers.seedThingsTables(db, testUsers, testThings, testReviews)
     );
@@ -38,6 +38,21 @@ describe('Things Endpoints', function() {
         return supertest(app)
           .get('/api/things/123')
           .expect(401, { error: 'Missing bearer token' });
+      });
+      it('responds 401 \'Unauthorized request\' when invalid JWT secret', () => {
+        const validUser = testUsers[0];
+        const invalidSecret = 'bad-secret';
+        return supertest(app)
+          .post('/api/things/123')
+          .set('Authorization', helpers.makeAuthHeader(validUser, invalidSecret))
+          .expect(401, { error: 'Unauthorized request' });
+      });
+      it('responds 401 \'Unauthorized request\' when invalid sub in payload', () => {
+        const invalidUser = { user_name: 'user-not-existy', id: 1 };
+        return supertest(app)
+          .post('/api/things/123')
+          .set('Authorization', helpers.makeAuthHeader(invalidUser))
+          .expect(401, { error: 'Unauthorized request' });
       });
     });
   });
